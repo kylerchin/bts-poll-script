@@ -1,0 +1,150 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script type="text/javascript" src="chartjs-plugin-sort.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels'></script>
+<style>
+    @font-face {
+  font-family: 'BTSMedium';
+  src: url('EmtypeFoundry-CamberMediumRegular.woff') format('woff'); /* Pretty Modern Browsers */
+}
+
+body {
+    background: #00ff00;
+}
+</style>
+<script>
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+var nameArray = []
+var scoreArray = []
+
+function newChartPoll(linkInjest,pollArgName) {
+
+    $.get(linkInjest,  // url
+      function (data, textStatus, jqXHR) {  // success callback
+          //alert('status: ' + textStatus + ', data:' + data);
+          output1 = data.slice(106,-112);
+          console.log(output1);
+          document.getElementById("parse").innerHTML = output1;
+          nameArray = []
+          $('.pds-answer-text').each(function (i, row)
+            {
+                
+                pollcatagory =   row.innerHTML
+                console.log(pollcatagory)
+                nameArray.push(pollcatagory)
+                  
+            })
+/*
+$('.pds-question-top').each(function (i, row)
+            {
+                polltitle = "Billboard Poll:" + row.innerHTML
+                  
+            })*/
+
+            polltitle = pollArgName;
+
+            scoreArrayArray = []
+
+            $('.pds-feedback-per').each(function (i, row)
+            {
+                  pollscore = row.innerHTML.replace("&nbsp;", "").replace("%", "")
+                  console.log(pollscore)
+                scoreArray.push(pollscore)
+               // shuffleArray(scoreArray);
+            })
+
+            var ctx = document.getElementById('myChart').getContext('2d');
+            
+var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'horizontalBar',
+
+    // The data for our dataset
+    data: {
+        labels: nameArray,
+        datasets: [{
+            label: polltitle,
+            backgroundColor: '#69359c',
+            borderColor: 'rgb(255, 99, 132)',
+            data: scoreArray
+        }]
+    },
+
+    // Configuration options go here
+    options: {
+        title: {
+            fontColor: "#1a1a1a",
+            fontStyle: "heavy"
+        },
+        legend: {
+            labels: {
+                // This more specific font property overrides the global property
+                defaultFontFamily: "BTSMedium",
+                defaultFontStyle: "bold"
+            },
+            fontColor: "#814ed1",
+            display: true
+        },
+        plugins: {
+        datalabels: {
+            font: {
+                //family: 'BTSMedium'
+            },
+    align: 'end',
+    anchor: 'center',        
+    backgroundColor: "#814ed1",
+    borderRadius: 4,
+    padding: 2,
+    offset: 4,
+    color: 'white',
+    formatter: function(value, context) {
+    return value + '%';
+},
+    clip: true
+  }
+}
+
+    }
+});
+
+    //data
+/*
+    $('.pds-feedback-label').each(function(){
+        //console.log($(this).innerHTML);
+    $(this).find('.pds-answer-text').each(function(){
+        //do your stuff, you can use $(this) to get current cell
+        console.log($(this).innerHTML);
+    })
+})*/
+      });
+
+
+}
+
+newChartPoll('https://polls.polldaddy.com/vote-js.php?p=10581243',"What's your favorite boy band of all time?")
+
+pollListArray = ["10530035",'10581243', '10582642']
+
+pollListNameArray = ["Who deserves to win album of the year at the 2021 Grammys?",
+"What's your favorite boy band of all time?",
+"Which 2020 iHeartRadio Music Festival headliner are you most looking forward to?"
+]
+
+setInterval(function(){ 
+
+    var randompoll = Math.floor(Math.random() * pollListArray.length);
+    newChartPoll("https://polls.polldaddy.com/vote-js.php?p=" + pollListArray[randompoll],pollListNameArray[randompoll]);
+
+ }, 10000);
+
+</script>
+<div id="parse" hidden></div>
+<canvas id="myChart" width='100%-16px' style='margin-right: 16px'></canvas>
